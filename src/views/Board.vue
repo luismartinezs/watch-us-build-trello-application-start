@@ -6,7 +6,12 @@
           {{ column.name }}
         </div>
         <div class="list-reset">
-          <div class="task" v-for="task of column.tasks" :key="task.id">
+          <div
+            class="task"
+            v-for="task of column.tasks"
+            :key="task.id"
+            @click="goToTask(task)"
+          >
             <span class="w-full font-bold flex-no-shrink">
               {{ task.name }}
             </span>
@@ -18,10 +23,16 @@
             </p>
           </div>
         </div>
+        <input
+          type="text"
+          class="block w-full p-2 bg-transparent"
+          placeholder="+ Enter new task"
+          @keyup.enter="createTask($event, column.tasks)"
+        />
       </div>
     </div>
 
-    <div class="task-bg" v-if="isTaskOpen">
+    <div class="task-bg" v-if="isTaskOpen" @click.self="close">
       <router-view />
     </div>
   </div>
@@ -34,6 +45,18 @@ export default {
     ...mapState(['board']),
     isTaskOpen () {
       return this.$route.name === 'task'
+    }
+  },
+  methods: {
+    goToTask (task) {
+      this.$router.push({ name: 'task', params: { id: task.id } })
+    },
+    close () {
+      this.$router.push({ name: 'board' })
+    },
+    createTask (e, tasks) {
+      this.$store.commit('createTask', { tasks, name: e.target.value })
+      e.target.value = ''
     }
   }
 }
